@@ -172,9 +172,8 @@ namespace MQTTClient
                 }
                 if (settings.Settings.Notifications && client.IsConnected)
                 {
-                    //PlayniteApi.Notifications.Add("MQTT Client", "MQTT Connected", NotificationType.Info);
                     PlayniteApi.Notifications.Add(
-                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + "\nMQTT Connected", NotificationType.Info)
+                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "\nMQTT Connected", NotificationType.Info)
                     );
                 }
                 if (client.IsConnected)
@@ -231,22 +230,14 @@ namespace MQTTClient
                 StartDisconnect(settings.Settings.ShowStatusChanged).Wait(300);
                 if (settings.Settings.Notifications && !client.IsConnected)
                 {
-                    //PlayniteApi.Notifications.Add("MQTT Client", "MQTT Disconnected", NotificationType.Info);
                     PlayniteApi.Notifications.Add(
-                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + "\nMQTT Disconnected", NotificationType.Info)
+                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss") + "\nMQTT Disconnected", NotificationType.Info)
                     );
                 }
             }
             else
             {
                 StartConnection(settings.Settings.ShowStatusChanged);
-                if (settings.Settings.Notifications && client.IsConnected)
-                {
-                    //PlayniteApi.Notifications.Add("MQTT Client", "MQTT Connected", NotificationType.Info);
-                    PlayniteApi.Notifications.Add(
-                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + "\nMQTT Connected", NotificationType.Info)
-                    );
-                }
             }
         }
 
