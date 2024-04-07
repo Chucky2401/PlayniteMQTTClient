@@ -17,6 +17,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -130,7 +131,7 @@ namespace MQTTClient
                         {
                             if (notify && !client.IsConnected)
                             {
-                                PlayniteApi.Dialogs.ShowMessage("MQTT Disconnected");
+                                PlayniteApi.Dialogs.ShowMessage("MQTT Disconnected","MQTT Status");
                             }
                         });
             }
@@ -149,7 +150,14 @@ namespace MQTTClient
             {
                 optionsUnBuilt = optionsUnBuilt.WithTlsOptions(o =>
                 {
-                    o.UseTls(true);
+                    o.UseTls();
+                    if (!string.IsNullOrEmpty(settings.Settings.CertificatePath) && File.Exists(settings.Settings.CertificatePath))
+                    {
+                        var caChain = new X509Certificate2Collection();
+                        caChain.Import(settings.Settings.CertificatePath);
+                        o.WithClientCertificates(caChain);
+                        o.WithRevocationMode(X509RevocationMode.NoCheck);
+                    }
                 });
             }
 
@@ -160,7 +168,7 @@ namespace MQTTClient
                 var connectionResult = await client.ConnectAsync(options, cancellationToken);
                 if (notifyCompletion && client.IsConnected)
                 {
-                    PlayniteApi.Dialogs.ShowMessage("MQTT Connected");
+                    PlayniteApi.Dialogs.ShowMessage("MQTT Connected","MQTT Status");
                 }
                 if (settings.Settings.Notifications && client.IsConnected)
                 {
@@ -405,7 +413,7 @@ namespace MQTTClient
 
                     if (settings.Settings.PublishCover)
                     {
-                        if (!cover.HasValue)
+                        if (!cover.HasValue && first.Platforms != null)
                         {
                             cover = await GetCoverData(first.Platforms.FirstOrDefault(p => !string.IsNullOrEmpty(p.Cover))?.Cover);
                         }
@@ -484,17 +492,17 @@ namespace MQTTClient
                 tasks = tasks.ContinueWith(
                     async t => await PublishFileAsync(
                         currentCoverTopic,
-                        args.Game.CoverImage ?? args.Game.Platforms.FirstOrDefault(p => !string.IsNullOrEmpty(p.Cover))?.Cover,
+                        args.Game.CoverImage ?? args.Game.Platforms?.FirstOrDefault(p => !string.IsNullOrEmpty(p.Cover))?.Cover,
                         retain: true,cancellationToken:applicationClosingCompletionSource.Token));
                 tasks = tasks.ContinueWith(
                     async t => await PublishFileAsync(
                         currentBackgroundTopic,
-                        args.Game.BackgroundImage ?? args.Game.Platforms.FirstOrDefault(p => !string.IsNullOrEmpty(p.Background))?.Background,
+                        args.Game.BackgroundImage ?? args.Game.Platforms?.FirstOrDefault(p => !string.IsNullOrEmpty(p.Background))?.Background,
                         retain: true,cancellationToken:applicationClosingCompletionSource.Token));
                 tasks = tasks.ContinueWith(
                     async t => await PublishFileAsync(
                         iconTopic,
-                        args.Game.Icon ?? args.Game.Platforms.FirstOrDefault(p => !string.IsNullOrEmpty(p.Icon))?.Icon,
+                        args.Game.Icon ?? args.Game.Platforms?.FirstOrDefault(p => !string.IsNullOrEmpty(p.Icon))?.Icon,
                         retain: true,cancellationToken: applicationClosingCompletionSource.Token));
             }
         }
