@@ -242,13 +242,6 @@ namespace MQTTClient
             else
             {
                 StartConnection(settings.Settings.ShowStatusChanged);
-                if (settings.Settings.Notifications && client.IsConnected)
-                {
-                    //PlayniteApi.Notifications.Add("MQTT Client", "MQTT Connected", NotificationType.Info);
-                    PlayniteApi.Notifications.Add(
-                        new NotificationMessage(Guid.NewGuid().ToString(), DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss") + "\nMQTT Connected", NotificationType.Info)
-                    );
-                }
             }
         }
 
