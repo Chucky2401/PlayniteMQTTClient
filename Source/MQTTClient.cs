@@ -164,7 +164,7 @@ namespace MQTTClient
             var options = optionsUnBuilt.Build();
             try
             {
-                progress?.Report(0.1f);
+                progress?.Report(0.5f);
                 var connectionResult = await client.ConnectAsync(options, cancellationToken);
                 if (notifyCompletion && client.IsConnected)
                 {
@@ -181,6 +181,7 @@ namespace MQTTClient
                 {
                     logger.Debug("MQTT Connected");
                 }
+                progress?.Report(1);
 
                 return connectionResult;
             }
@@ -190,6 +191,7 @@ namespace MQTTClient
                     $"MQTT: {e.Message}",
                     "MQTT Error");
             }
+            progress?.Report(0);
 
             return null;
         }
@@ -320,7 +322,6 @@ namespace MQTTClient
                     try
                     {
                         await StartConnectionTask(false, cancellationToken: applicationClosingCompletionSource.Token);
-                        sidebarItem.ProgressValue = 1;
                         logger.Debug("MQTT client reconnected after disconnect on power resume.");
                     }
                     catch (Exception ex)
